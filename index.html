@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneLink Messenger</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">OL</div>
+        <div>
+          <h1>OneLink</h1>
+          <p>Мессенджер нового поколения</p>
+        </div>
+      </div>
+
+      <label class="search-box">
+        <input id="contactSearch" type="text" placeholder="Поиск чатов" />
+      </label>
+
+      <section>
+        <div class="section-head">
+          <h2>Чаты</h2>
+          <button id="newChatBtn" class="ghost-btn">+ Новый</button>
+        </div>
+        <ul id="chatList" class="chat-list"></ul>
+      </section>
+    </aside>
+
+    <main class="chat-pane">
+      <header class="chat-header">
+        <div>
+          <h2 id="activeChatName">Выберите чат</h2>
+          <p id="activeChatStatus">OneLink объединяет друзей и команды</p>
+        </div>
+        <button id="themeToggle" class="ghost-btn">🌙 Тема</button>
+      </header>
+
+      <section id="messageFeed" class="message-feed"></section>
+
+      <form id="messageForm" class="message-form">
+        <input id="messageInput" type="text" maxlength="500" placeholder="Напишите сообщение..." required />
+        <button type="submit">Отправить</button>
+      </form>
+    </main>
+  </div>
+
+  <template id="chatItemTemplate">
+    <li class="chat-item">
+      <button>
+        <strong class="chat-name"></strong>
+        <span class="chat-preview"></span>
+      </button>
+    </li>
+  </template>
+
+  <template id="messageTemplate">
+    <article class="message">
+      <p class="message-text"></p>
+      <time class="message-time"></time>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
