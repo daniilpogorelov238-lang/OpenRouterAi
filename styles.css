@@ -28,6 +28,34 @@ body {
   color: var(--text);
 }
 
+.hidden { display: none; }
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 14, 28, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.auth-overlay.hidden { display: none; }
+
+.auth-card {
+  width: min(440px, 100%);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 1.2rem;
+}
+.auth-card h2 { margin: 0; }
+.auth-subtitle { color: var(--muted); margin: .4rem 0 1rem; }
+.auth-form { display: grid; gap: .6rem; margin-bottom: .8rem; }
+.auth-form label { display: grid; gap: .35rem; font-size: .95rem; }
+.auth-status { min-height: 22px; color: var(--accent); font-weight: 600; }
+.auth-note { color: var(--muted); font-size: .8rem; margin: .3rem 0 0; }
+
 .app-shell {
   min-height: 100vh;
   display: grid;
@@ -53,7 +81,6 @@ body {
   color: white; font-weight: 700;
 }
 
-
 .apk-download {
   display: block;
   text-align: center;
@@ -70,8 +97,26 @@ body {
   color: var(--accent);
 }
 
+.user-badge {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-alt);
+  padding: .6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .6rem;
+}
+.user-badge strong {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .search-box input,
-.message-form input {
+.message-form input,
+.auth-form input {
   width: 100%;
   border: 1px solid var(--border);
   background: var(--surface-alt);
@@ -84,7 +129,8 @@ body {
   display: flex; justify-content: space-between; align-items: center;
 }
 .section-head h2 { margin: 0; font-size: 1rem; }
-.ghost-btn {
+.ghost-btn,
+.auth-form button {
   border: 1px solid var(--border);
   background: var(--surface-alt);
   color: var(--text);

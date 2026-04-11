@@ -3,6 +3,13 @@ const STORAGE_KEY = "onelink_state_v1";
 const defaultState = {
   theme: "light",
   activeChatId: "chat-1",
+  auth: {
+    email: "",
+    isLoggedIn: false,
+    pendingCode: "",
+    pendingEmail: "",
+    codeExpiresAt: 0,
+  },
   chats: [
     {
       id: "chat-1",
@@ -32,6 +39,14 @@ const elements = {
   themeToggle: document.getElementById("themeToggle"),
   chatItemTemplate: document.getElementById("chatItemTemplate"),
   messageTemplate: document.getElementById("messageTemplate"),
+  authOverlay: document.getElementById("authOverlay"),
+  emailForm: document.getElementById("emailForm"),
+  emailInput: document.getElementById("emailInput"),
+  codeForm: document.getElementById("codeForm"),
+  codeInput: document.getElementById("codeInput"),
+  authStatus: document.getElementById("authStatus"),
+  profileEmail: document.getElementById("profileEmail"),
+  logoutBtn: document.getElementById("logoutBtn"),
 };
 
 const loadState = () => {
@@ -53,6 +68,18 @@ const formatTime = (ts) =>
   new Date(ts).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 
 const getActiveChat = () => state.chats.find((chat) => chat.id === state.activeChatId);
+
+const generateCode = () => String(Math.floor(100000 + Math.random() * 900000));
+
+const renderAuth = () => {
+  elements.profileEmail.textContent = state.auth.isLoggedIn ? state.auth.email : "Гость";
+  elements.authOverlay.classList.toggle("hidden", state.auth.isLoggedIn);
+  elements.codeForm.classList.toggle("hidden", !state.auth.pendingCode);
+
+  if (!state.auth.pendingCode) {
+    elements.authStatus.textContent = "";
+  }
+};
 
 const renderChatList = () => {
   const query = elements.contactSearch.value.trim().toLowerCase();
@@ -117,13 +144,76 @@ const renderTheme = () => {
 
 const render = () => {
   renderTheme();
+  renderAuth();
   renderChatList();
   renderMessages();
 };
 
+elements.emailForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = elements.emailInput.value.trim().toLowerCase();
+  if (!email) return;
+
+  const code = generateCode();
+  state.auth.pendingCode = code;
+  state.auth.pendingEmail = email;
+  state.auth.codeExpiresAt = Date.now() + 5 * 60 * 1000;
+
+  elements.authStatus.textContent = `Код отправлен на ${email}. Демо-код: ${code}`;
+  saveState();
+  renderAuth();
+});
+
+elements.codeForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const code = elements.codeInput.value.trim();
+
+  if (Date.now() > state.auth.codeExpiresAt) {
+    elements.authStatus.textContent = "Код истёк. Запросите новый.";
+    state.auth.pendingCode = "";
+    saveState();
+    renderAuth();
+    return;
+  }
+
+  if (code !== state.auth.pendingCode) {
+    elements.authStatus.textContent = "Неверный код. Проверьте письмо и повторите.";
+    return;
+  }
+
+  state.auth.email = state.auth.pendingEmail;
+  state.auth.isLoggedIn = true;
+  state.auth.pendingCode = "";
+  state.auth.pendingEmail = "";
+  state.auth.codeExpiresAt = 0;
+
+  elements.emailInput.value = "";
+  elements.codeInput.value = "";
+  saveState();
+  render();
+});
+
+elements.logoutBtn.addEventListener("click", () => {
+  state.auth.isLoggedIn = false;
+  state.auth.email = "";
+  state.auth.pendingCode = "";
+  state.auth.pendingEmail = "";
+  state.auth.codeExpiresAt = 0;
+  elements.codeInput.value = "";
+  elements.emailInput.value = "";
+  saveState();
+  render();
+});
+
 elements.contactSearch.addEventListener("input", renderChatList);
 
 elements.newChatBtn.addEventListener("click", () => {
+  if (!state.auth.isLoggedIn) {
+    elements.authStatus.textContent = "Сначала войдите по электронной почте.";
+    renderAuth();
+    return;
+  }
+
   const name = prompt("Название нового чата:");
   if (!name || !name.trim()) return;
 
@@ -141,6 +231,12 @@ elements.newChatBtn.addEventListener("click", () => {
 
 elements.messageForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!state.auth.isLoggedIn) {
+    elements.authStatus.textContent = "Для отправки сообщений подтвердите email.";
+    renderAuth();
+    return;
+  }
+
   const text = elements.messageInput.value.trim();
   if (!text) return;
 
